@@ -52,6 +52,7 @@ module KMonad.Model.Button
   , tapNextRelease
   , tapHoldNextRelease
   , tapNextPress
+  , tapNextPressAround
   , tapMacro
   , tapMacroRelease
   , stickyKey
@@ -63,7 +64,6 @@ import KMonad.Prelude
 import KMonad.Model.Action
 import KMonad.Keyboard
 import KMonad.Util
-
 
 --------------------------------------------------------------------------------
 -- $but
@@ -395,6 +395,36 @@ tapNextPress t h = onPress go
     -- we rethrow this event after holding.
     doHold :: MonadK m => KeyEvent -> m Catch
     doHold e = press h *> inject e $> Catch
+
+-- | Create a button just like tap-release, but also trigger a hold on presses:
+-- 1. It is the release of this button: We are tapping
+-- 2. It is the press of some other button, we hold
+-- 3. It is the release of some other button, we tap around that button.
+tapNextPressAround :: Button -> Button -> Button
+tapNextPressAround t h = onPress $ do
+  hold True
+  go
+  where
+    go :: MonadK m => m ()
+    go = hookF InputHook $ \e -> do
+      p <- matchMy Release
+      if
+        -- If the next event is my own release: we act as if we were tapped
+        | p e -> doTap
+        -- If the next event is a press: we act as if we were held
+        | isPress e -> doHold e
+        -- Else, if it is a release of some other button, tap around that button
+        | otherwise -> tap (around (emitB $ e^.keycode) t) *> hold False $> Catch
+
+    -- Behave like a tap
+    doTap :: MonadK m => m Catch
+    doTap = tap t *> hold False $> Catch
+
+    -- Behave like a hold:
+    -- We catch the event of ButtonX that triggered this action, and then
+    -- we rethrow this event after holding.
+    doHold :: MonadK m => KeyEvent -> m Catch
+    doHold e = press h *> hold False *> inject e $> Catch
 
 -- | Create a 'Button' that contains a number of delays and 'Button's. As long
 -- as the next press is registered before the timeout, the multiTap descends

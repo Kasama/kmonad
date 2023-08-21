@@ -278,6 +278,13 @@ to be the most comfortable.
   (defalias tnp (tap-next-press a sft))
   ```
 
++ `tap-next-press-around`: like `tap-next-press` but acts like a tap
+  around another key, when that other key is released.
+
+  ```clojure
+  (defalias tnp (tap-next-press-around a sft))
+  ```
+
 + `tap-hold-next-release`: like `tap-next-release` but with an
   additional timeout. This is just like `tap-next-release`, but with
   `tap-next` swapped out for `tap-next-release`.

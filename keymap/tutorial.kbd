@@ -810,6 +810,17 @@
     Pesc Pa Resc Ra -> A (because a is pressed before esc is released)
     Pesc Ta Resc    -> A (a is pressed before esc is released here as well)
 
+  `tap-next-press-around` is very similar to `tap-next-press`, but when another key is
+  released, it acts as if it was pressed `around` that key.
+  Using the minilanguage:
+    (tap-next-press-around x lsft)
+  Then:
+    Tesc Ta -> xa
+    Pshift Pesc Rshift Resc -> X (because another modifier is released while esc is pressed)
+    Pa Pesc Ra Resc         -> ax (because esc is released before another key is pressed)
+    Pesc Pa Resc Ra         -> A (because a is pressed before esc is released)
+    Pesc Ta Resc            -> A (a is pressed before esc is released here as well)
+
   These increasingly stranger buttons are, I think, coming from the stubborn
   drive of some of my more eccentric (and I mean that in the most positive way)
   users to make typing with modifiers on the home-row more comfortable.
